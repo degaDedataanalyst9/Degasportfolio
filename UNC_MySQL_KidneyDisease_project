@@ -1,0 +1,98 @@
+CREATE TABLE demographic_id (
+    MRN BIGINT NOT NULL PRIMARY KEY,
+    Age INT,
+    Gender VARCHAR(200),
+    Race VARCHAR (200),
+    Ethnicity VARCHAR (600)
+);
+INSERT INTO demographic_id (MRN,Age,Gender, Race, Ethnicity) 
+    VALUES (000006118111,    82,    "FEMALE",    "WHITE",    "NOT HISPANIC, LATINO/A, OR SPANISH ORIGIN"),
+    (000041706409,    60,    "MALE",    "WHITE",    "NOT HISPANIC, LATINO/A, OR SPANISH ORIGIN"),
+    (100068636909,    61,    "MALE",    "WHITE",    "NOT HISPANIC, LATINO/A, OR SPANISH ORIGIN"),
+    (000001486919,     77, "FEMALE",    "WHITE",    "NOT HISPANIC, LATINO/A, OR SPANISH ORIGIN"),
+    (100053476535,    60,    "FEMALE",    "WHITE",    "NOT HISPANIC, LATINO/A, OR SPANISH ORIGIN");
+    SELECT * FROM demographic_id;
+ 
+ 
+CREATE TABLE encounter_id (
+    Encounter BIGINT NOT NULL PRIMARY KEY,
+    MRN_en BIGINT,
+    FOREIGN KEY (MRN_en) REFERENCES demographic_id(MRN)
+    );
+INSERT INTO encounter_id (Encounter, MRN_en) VALUES (20456724394,000006118111),
+    (20458787543,000041706409), (20458798440,100068636909), (20459018243,000001486919), (20459044432,100053476535);
+    SELECT * FROM encounter_id;
+
+
+CREATE TABLE lab_reports (
+    Encounter_lab BIGINT NOT NULL,
+    Creatinine DECIMAL(3,2),
+    Lab_Date_Time DATETIME,
+    FOREIGN KEY (Encounter_lab) REFERENCES encounter_id (Encounter)
+    );
+    
+INSERT INTO lab_reports (Encounter_lab, Creatinine, Lab_Date_Time) VALUES (20456724394, 0.77, '2022-05-06 09:09:00'),
+    (20458787543,1.3,'2022-04-08 07:44:00'),
+    (20458798440    ,1.2, '2022-04-29 07:29:00'),
+    (20459018243, 0.77, '2022-05-26 20:54:00'),
+    (20459044432, 0.78,    '2022-09-14 06:19:00');
+    SELECT * FROM lab_reports;
+    
+CREATE TABLE Language_tab (
+MRN_lan BIGINT NOT NULL,
+Preferred_Language VARCHAR (200),
+Need_Interpreter VARCHAR (200),
+FOREIGN KEY (MRN_lan) REFERENCES demographic_id(MRN)
+);
+
+INSERT INTO Language_tab ( MRN_lan, Preferred_Language, Need_interpreter) VALUES (000006118111,    "ENGLISH",    "NO"),
+    (000041706409,    "ENGLISH" , NULL),    
+    (100068636909,    "ENGLISH" ,    "NO"),
+    (000001486919,    "ENGLISH" , "NO"),
+    (100053476535,    "ENGLISH" ,    "NO");
+    SELECT * FROM Language_tab;
+
+CREATE TABLE beds(
+Encounter_beds BIGINT NOT NULL,
+Bed VARCHAR (10),
+Room VARCHAR (10),
+Service VARCHAR (200)
+);
+
+INSERT INTO beds (Encounter_beds, Bed, Room,Service) VALUES (20456724394,'3H15-01',    '3H15',    'ORTHOPEDICS (SRO)'),
+(20458787543, '3H14-01','3H14',    'ORTHOPEDICS (SRO)'),
+(20458798440,    '3H11-01',    '3H11',    'ORTHOPEDICS (SRO)'),
+(20458798440,    'PERIOP HBR',    'PERIOP HBR','ORTHOPEDICS (SRO)'),
+(20459018243,    '5303-01',    '5303',    'ORTHOPEDICS (SRO)'),
+(20459018243,    'PERIOP HBR',    'PERIOP HBR',    'ORTHOPEDICS (SRO)'),
+(20459018243,    '5303-01',    '5303',    'ORTHOPEDICS (SRO)'),
+(20459018243,    'PERIOP HBR','PERIOP HBR', 'ORTHOPEDICS (SRO)'),
+(20459044432,    '3H04-01',    '3H04',    'ORTHOPEDICS (SRO)'),
+(20459044432,    'PERIOP HBR',    'PERIOP HBR','ORTHOPEDICS (SRO)');
+
+SELECT * FROM beds;
+
+CREATE TABLE admits (
+    MRN_admits BIGINT NOT NULL,
+    Re_Admission_Indicator VARCHAR (5),
+    Admit_Date DATE,
+    DC_Date DATE,
+    FOREIGN KEY (MRN_admits) REFERENCES demographic_id(MRN)
+    );
+    
+INSERT INTO admits (MRN_admits, Re_Admission_Indicator, Admit_Date, DC_Date) VALUES
+    (000006118111,    "NO",    "2022-05-05",    "2022-05-10"),
+    (000041706409,    "NO",    "2022-04-07",    "2022-04-09"),
+    (100068636909,    "NO",    "2022-04-28",   "2022-05-01"),
+    (000001486919,    "NO",    "2022-05-26",    "2022-06-02"),
+    (100053476535,    "NO",    "2022-09-13",    "2022-09-16");
+    
+SELECT * FROM admits;
+
+
+SELECT * FROM demographic_id
+    INNER JOIN encounter_id ON demographic_id.MRN = encounter_id.MRN_en
+    INNER JOIN lab_reports ON encounter_id.Encounter = lab_reports.Encounter_lab
+    INNER JOIN Language_tab ON demographic_id.MRN = Language_tab.MRN_lan
+    INNER JOIN beds ON encounter_id.Encounter = beds.Encounter_beds
+    INNER JOIN admits ON demographic_id.MRN = admits.MRN_admits;
